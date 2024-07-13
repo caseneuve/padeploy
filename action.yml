@@ -23,6 +23,16 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Determine changed files
+      id: changed-files
+      shell: bash
+      run: |
+        files=$(git diff --name-only ${{ github.sha }}^ ${{ github.sha }})
+        echo "files=$files" >> $GITHUB_ENV
+
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -32,14 +42,6 @@ runs:
       shell: bash
       run: |
         pipx install pythonanywhere
-
-    - name: Determine changed files
-      uses: actions/checkout@v4
-      id: changed-files
-      shell: bash
-      run: |
-        files=$(git diff --name-only ${{ github.sha }}^ ${{ github.sha }})
-        echo "files=$files" >> $GITHUB_ENV
 
     - name: Upload changed files to PythonAnywhere
       env:
