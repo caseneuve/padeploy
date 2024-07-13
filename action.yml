@@ -33,7 +33,7 @@ runs:
       shell: bash
       run: |
         files=$(git diff --name-only ${{ github.sha }}^ ${{ github.sha }})
-        echo "files=$files" >> $GITHUB_ENV
+        echo "files=${files}" >> $GITHUB_ENV
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -51,7 +51,7 @@ runs:
         USER: ${{ inputs.pa-user }}
       shell: bash
       run: |
-        for file in $files; do
+        for file in "$files"; do
           if [[ "$file" == ".github/"* ]];
           then echo "skipping $file"
           else
