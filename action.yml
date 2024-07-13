@@ -52,8 +52,12 @@ runs:
       shell: bash
       run: |
         for file in $files; do
-          echo "Uploading $file to ${{ inputs.pa-path }}"
-          pa path upload -c $file ${{ inputs.pa-path }}/$file
+          if [[ "$file" == ".github/"* ]];
+          then echo "skipping $file"
+          else
+            echo "Uploading $file to ${{ inputs.pa-path }}"
+            pa path upload -c $file ${{ inputs.pa-path }}/$file
+          fi
         done
 
     - name: Reload PythonAnywhere web app
