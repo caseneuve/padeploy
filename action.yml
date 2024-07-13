@@ -34,6 +34,7 @@ runs:
         pipx install pythonanywhere
 
     - name: Determine changed files
+      uses: actions/checkout@v4
       id: changed-files
       shell: bash
       run: |
