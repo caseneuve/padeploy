@@ -16,7 +16,6 @@ inputs:
   pa-domain:
     description: 'PythonAnywhere web app domain name'
     required: true
-    default: "${{ pa-user }}.pythonanywhere.com"
   pa-path:
     description: 'Full path to the project root on PythonAnywhere'
     required: true
@@ -30,11 +29,13 @@ runs:
         python-version: ${{ inputs.python-version }}
 
     - name: Install PA CLI
+      shell: bash
       run: |
         pipx install pythonanywhere
 
     - name: Determine changed files
       id: changed-files
+      shell: bash
       run: |
         files=$(git diff --name-only ${{ github.sha }}^ ${{ github.sha }})
         echo "files=$files" >> $GITHUB_ENV
@@ -43,6 +44,7 @@ runs:
       env:
         API_TOKEN: ${{ inputs.pa-api-key }}
         USER: ${{ inputs.pa-user }}
+      shell: bash
       run: |
         for file in $files; do
           echo "Uploading $file to ${{ inputs.pa-path }}"
@@ -50,6 +52,7 @@ runs:
         done
 
     - name: Reload PythonAnywhere web app
+      shell: bash
       env:
         API_TOKEN: ${{ inputs.pa-api-key }}
         USER: ${{ inputs.pa-user }}
