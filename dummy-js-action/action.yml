@@ -1,13 +1,57 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'Deploy to PythonAnywhere'
+description: 'A custom GitHub Action to deploy changed files to PythonAnywhere and reload the web app'
+author: 'caseneuve'
+
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  python-version:
+    description: 'Python version to use'
     required: true
-    default: 'World'
-outputs:
-  time: # id of output
-    description: 'The time we greeted you'
+    default: '3.10'
+  pa-api-key:
+    description: 'PythonAnywhere API key'
+    required: true
+  pa-user:
+    description: 'PythonAnywhere username'
+    required: true
+  pa-domain:
+    description: 'PythonAnywhere web app domain name'
+    required: true
+    default: "${{ pa-user }}.pythonanywhere.com"
+  pa-path:
+    description: 'Full path to the project root on PythonAnywhere'
+    required: true
+
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install PA CLI
+      run: |
+        pipx install pythonanywhere
+
+    - name: Determine changed files
+      id: changed-files
+      run: |
+        files=$(git diff --name-only ${{ github.sha }}^ ${{ github.sha }})
+        echo "files=$files" >> $GITHUB_ENV
+
+    - name: Upload changed files to PythonAnywhere
+      env:
+        API_TOKEN: ${{ inputs.pa-api-key }}
+        USER: ${{ inputs.pa-user }}
+      run: |
+        for file in $files; do
+          echo "Uploading $file to ${{ inputs.pa-path }}"
+          pa path upload -c $file ${{ inputs.pa-path }}/$file
+        done
+
+    - name: Reload PythonAnywhere web app
+      env:
+        API_TOKEN: ${{ inputs.pa-api-key }}
+        USER: ${{ inputs.pa-user }}
+      run: |
+        pa website reload -d ${{ inputs.pa-domain }} && echo 'Done!'
