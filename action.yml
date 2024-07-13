@@ -33,7 +33,7 @@ runs:
       shell: bash
       run: |
         files=$(git diff --name-only ${{ github.sha }}^ ${{ github.sha }})
-        echo "files=${files}" >> $GITHUB_ENV
+        echo "files=( ${files} )" >> $GITHUB_ENV
 
     - name: Set up Python
       uses: actions/setup-python@v2
