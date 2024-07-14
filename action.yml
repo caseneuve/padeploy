@@ -19,6 +19,8 @@ inputs:
   pa-path:
     description: 'Full path to the project root on PythonAnywhere'
     required: true
+  app:
+    description: 'Path to the FastAPI app file'
 
 runs:
   using: 'composite'
