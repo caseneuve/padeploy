@@ -23,18 +23,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Determine changed files
-      id: changed-files
-      shell: bash
-      run: |
-        files=$(git diff --name-only ${{ github.sha }}^ ${{ github.sha }})
-        echo "files=\"$files\"" >> $GITHUB_ENV
-
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -49,16 +37,11 @@ runs:
       env:
         API_TOKEN: ${{ inputs.pa-api-key }}
         USER: ${{ inputs.pa-user }}
+        FILE: ${{ inputs.app }}
       shell: bash
       run: |
-        for file in "$files"; do
-          if [[ "$file" == ".github/"* ]];
-          then echo "skipping $file"
-          else
-            echo "Uploading $file to ${{ inputs.pa-path }}"
-            pa path upload -c $file ${{ inputs.pa-path }}/$file
-          fi
-        done
+        echo "Uploading $FILE"
+        pa path upload -c $FILE ${{ inputs.pa-path }}/$FILE
 
     - name: Reload PythonAnywhere web app
       shell: bash
